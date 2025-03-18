@@ -1,6 +1,6 @@
 # CS690 FinalProject - Book Log
 
-This project is to create an program that addresses the given scenario.
+This project is to create a .NET program that addresses the given scenario.
 
 ## [Wiki](https://github.com/daviddhnguyen/CS690-FinalProject-BookLog/wiki)
 
