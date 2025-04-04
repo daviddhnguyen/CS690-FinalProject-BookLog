@@ -1,6 +1,6 @@
 namespace BookLog;
 
-using Booklog;
+using BookLog;
 using Spectre.Console;
 
 public class ConsoleUI {

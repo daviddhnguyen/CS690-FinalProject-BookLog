@@ -27,10 +27,10 @@ public class FileSaverTests
     [Fact]
     public void Test_FileSaver_AppendData()
     {
-        Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
+        Book testBook = new Book("Test Book","Test Author",100,"1234567890");
         
         fileSaver.AppendData(testBook);
         var fileContents = File.ReadAllText(testFileName);
-        Assert.Contains("Test Book,Test Author,100,1234567890" + Environment.NewLine, fileContents);
+        Assert.Contains("Test Book:Test Author:100:1234567890" + Environment.NewLine, fileContents);
     }
 }

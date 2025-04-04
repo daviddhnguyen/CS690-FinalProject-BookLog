@@ -1,4 +1,4 @@
-namespace Booklog;
+namespace BookLog;
 
 public class Book {
     public string Title { get; }
