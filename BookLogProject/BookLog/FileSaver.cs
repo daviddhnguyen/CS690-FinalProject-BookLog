@@ -1,6 +1,7 @@
 namespace BookLog;
 
 using System.IO;
+using Booklog;
 
 public class FileSaver {
     string fileName;
@@ -12,5 +13,9 @@ public class FileSaver {
 
     public void AppendLine(string line) {
         File.AppendAllText(this.fileName, line + Environment.NewLine);
+    }
+
+    public void AppendData(Book book) {
+        File.AppendAllText(this.fileName, book.Title  + ":" + book.Author  + ":" + book.PageCount  + ":" + book.ISBN + Environment.NewLine);
     }
 }

@@ -1,12 +1,13 @@
 namespace BookLog;
 
+using Booklog;
 using Spectre.Console;
 
 public class ConsoleUI {
     FileSaver fileSaver;
 
     public ConsoleUI() {
-        fileSaver = new FileSaver("booklist.txt");
+        fileSaver = new FileSaver("shelf.txt");
     }
 
     public void Show() {
@@ -16,23 +17,23 @@ public class ConsoleUI {
             new SelectionPrompt<string>()
                 .Title("Select a mode:")
                 .AddChoices(new[] {
-                    "booklist", "reading progress"
+                    "shelf", "reading progress"
                     })
         );
 
-        if (mode == "booklist") {
-            // Logic to view the booklist
-            Console.WriteLine("Displaying the booklist...");
+        if (mode == "shelf") {
+            // Logic to view the shelf
+            Console.WriteLine("Displaying your shelf...");
 
             string bookCmd;
 
             do {
-                // Booklist home
+                // shelf home
                 bookCmd = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Select a book command:")
                         .AddChoices(new[] {
-                            "add", "edit", "notes", "remove", "booklist", "home"
+                            "add", "edit", "notes", "remove", "shelf", "home"
                         })
                 );
                 
@@ -49,26 +50,19 @@ public class ConsoleUI {
 
                     string isbnInput = AskForInput("Enter the ISBN of the book (optional, press enter to skip):");
                     string isbn = string.IsNullOrWhiteSpace(isbnInput) ? "Unknown" : isbnInput; // Default to "Unknown" if no ISBN is provided 
-                    // Logic to add the bookdetails to the booklist
+                    // Logic to add the bookdetails to the shelf
 
-                    // Create an object to represent the book details
-                    var bookDetails = new {
-                        Book = bookName,
-                        Author = authorName,
-                        PageCount = pageCount,
-                        ISBN = isbn
-                    };
+                    Book bookDetails = new Book(bookName, authorName, pageCount, isbn);
 
                     // Serialize the object to JSON
-                    string json = System.Text.Json.JsonSerializer.Serialize(bookDetails);
+                    //string bookjson = System.Text.Json.JsonSerializer.Serialize(bookDetails);
 
-                    // Save the JSON to the file
-                    fileSaver.AppendLine(json);
+                    fileSaver.AppendData(bookDetails);
 
-                    Console.WriteLine($"Book '{bookName}' added to the booklist.");
+                    Console.WriteLine($"'{bookName}' added to your shelf.");
                 } else if (bookCmd == "edit") {
                     string bookName = AskForInput("Enter the name of the book to edit:");
-                    // Logic to edit the book in the booklist
+                    // Logic to edit the book in the shelf
 
                 } else if (bookCmd == "notes") {
                     string bookName = AskForInput("Enter the name of the book to view notes:");
@@ -78,8 +72,8 @@ public class ConsoleUI {
 
                 } else if (bookCmd == "remove") {
                     string bookName = AskForInput("Enter the name of the book to remove:");
-                    // Logic to remove the book from the booklist
-                    Console.WriteLine($"Book '{bookName}' removed from the booklist.");
+                    // Logic to remove the book from the shelf
+                    Console.WriteLine($"Book '{bookName}' removed from your shelf.");
 
                 } else if (bookCmd == "home") {
                     continue;
