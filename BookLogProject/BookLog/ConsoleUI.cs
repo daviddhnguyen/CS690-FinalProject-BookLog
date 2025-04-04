@@ -1,5 +1,7 @@
 namespace BookLog;
 
+using Spectre.Console;
+
 public class ConsoleUI {
     FileSaver fileSaver;
 
@@ -9,7 +11,14 @@ public class ConsoleUI {
 
     public void Show() {
 
-        string mode = AskForInput("Please select mode (booklist or reading progress):");
+        // Home page
+        var mode = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select a mode:")
+                .AddChoices(new[] {
+                    "booklist", "reading progress"
+                    })
+        );
 
         if (mode == "booklist") {
             // Logic to view the booklist
@@ -18,7 +27,14 @@ public class ConsoleUI {
             string bookCmd;
 
             do {
-                bookCmd = AskForInput("Please enter the book command (add/edit/notes/remove/booklist or home):");
+                // Booklist home
+                bookCmd = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Select a book command:")
+                        .AddChoices(new[] {
+                            "add", "edit", "notes", "remove", "booklist", "home"
+                        })
+                );
                 
                 if (bookCmd == "add") {
                     string bookName = AskForInput("Enter the name of the book to add:");
