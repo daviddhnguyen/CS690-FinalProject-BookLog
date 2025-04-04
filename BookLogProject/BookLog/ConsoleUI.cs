@@ -54,9 +54,6 @@ public class ConsoleUI {
 
                     Book bookDetails = new Book(bookName, authorName, pageCount, isbn);
 
-                    // Serialize the object to JSON
-                    //string bookjson = System.Text.Json.JsonSerializer.Serialize(bookDetails);
-
                     fileSaver.AppendData(bookDetails);
 
                     Console.WriteLine($"'{bookName}' added to your shelf.");
