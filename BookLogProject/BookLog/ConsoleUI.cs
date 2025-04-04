@@ -4,10 +4,10 @@ using BookLog;
 using Spectre.Console;
 
 public class ConsoleUI {
-    FileSaver fileSaver;
+    DataManager dataManager;
 
     public ConsoleUI() {
-        fileSaver = new FileSaver("shelf.txt");
+        dataManager = new DataManager();
     }
 
     public void Show() {
@@ -54,7 +54,7 @@ public class ConsoleUI {
 
                     Book bookDetails = new Book(bookName, authorName, pageCount, isbn);
 
-                    fileSaver.AppendData(bookDetails);
+                    dataManager.AddNewBook(bookDetails);
 
                     Console.WriteLine($"'{bookName}' added to your shelf.");
                 } else if (bookCmd == "edit") {
@@ -86,8 +86,10 @@ public class ConsoleUI {
 
     public static string AskForInput(string message) 
     {
-        Console.Write(message);
+        return AnsiConsole.Prompt(new TextPrompt<string>(message).AllowEmpty()
+        );
+        /* Console.Write(message);
         string input = Console.ReadLine()?.Trim().ToLower() ?? string.Empty;
-        return input;
+        return input; */
     }
 }

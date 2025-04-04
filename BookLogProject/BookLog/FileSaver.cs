@@ -15,7 +15,7 @@ public class FileSaver {
         File.AppendAllText(this.fileName, line + Environment.NewLine);
     }
 
-    public void AppendData(Book book) {
-        File.AppendAllText(this.fileName, book.Title  + ":" + book.Author  + ":" + book.PageCount  + ":" + book.ISBN + Environment.NewLine);
+    public void AppendData(Book bookDetails) {
+        File.AppendAllText(this.fileName, bookDetails.Title  + ":" + bookDetails.Author  + ":" + bookDetails.PageCount  + ":" + bookDetails.ISBN + Environment.NewLine);
     }
 }
