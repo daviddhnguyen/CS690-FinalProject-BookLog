@@ -9,7 +9,7 @@ public class FileSaverTests
 
     public FileSaverTests()
     {
-        testFileName = "testfile.txt";
+        testFileName = $"testfile_{Guid.NewGuid()}.txt";
         File.Delete(testFileName); // Ensure the file does not exist before the test
         fileSaver = new FileSaver(testFileName);
     }

@@ -8,17 +8,17 @@ public class DataManager
     public int ReadingGoal { get; set; }
 
 
-    public DataManager(){
+    public DataManager(string goalFileName = "goal.txt", string shelfFileName = "shelf.txt"){
 
-        shelfFileSaver = new FileSaver("shelf.txt");
-        goalFileSaver = new FileSaver("goal.txt");
+        shelfFileSaver = new FileSaver(shelfFileName);
+        goalFileSaver = new FileSaver(goalFileName);
 
         Books = new List<Book>();
 
         // Load the reading goal from goal.txt
-        if (File.Exists("goal.txt"))
+        if (File.Exists(goalFileName))
         {
-            string goalContent = File.ReadAllText("goal.txt").Trim(); // Read and trim whitespace
+            string goalContent = File.ReadAllText(goalFileName).Trim(); // Read and trim whitespace
             if (string.IsNullOrWhiteSpace(goalContent) || !int.TryParse(goalContent, out int parsedGoal))
             {
                 ReadingGoal = 0; // Default to 0 if the file is blank or invalid
@@ -43,6 +43,6 @@ public class DataManager
     // Method to set or update the reading goal
     public void SetReadingGoal(int goal) {
         this.ReadingGoal = goal;
-        File.WriteAllText("goal.txt", this.ReadingGoal.ToString());
+        File.WriteAllText(goalFileSaver.fileName, this.ReadingGoal.ToString());
     }
 }
