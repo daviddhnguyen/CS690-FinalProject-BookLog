@@ -4,7 +4,7 @@ using System.IO;
 using BookLog;
 
 public class FileSaver {
-    string fileName;
+    public string fileName { get; }
 
     public FileSaver(string fileName) {
         this.fileName = fileName;
