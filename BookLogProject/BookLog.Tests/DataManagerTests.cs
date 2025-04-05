@@ -44,8 +44,27 @@ public class DataManagerTests
         // Verify the book is saved to the custom shelf file
         var shelfFileContents = File.ReadAllText(testShelfFileName);
         Assert.Contains("Test Book:Test Author:100:1234567890" + Environment.NewLine, shelfFileContents);
-
-        // Cleanup
-        File.Delete(testShelfFileName);
     }
+
+    [Fact]
+    public void Test_RemoveBook()
+    {
+        Book testBookRemove = new Book("Test Book2", "Test Author2", 999, "2234567890");
+        dataManager.AddNewBook(testBookRemove);
+
+        Assert.Contains(testBookRemove, dataManager.Books);
+
+        Book testBookStay = new Book("Test BookA", "Test AuthorB", 999, "2234567890");
+        dataManager.AddNewBook(testBookStay);
+
+        Assert.Contains(testBookStay, dataManager.Books);
+
+        dataManager.RemoveBook(testBookRemove.Title);
+        Assert.DoesNotContain(testBookRemove, dataManager.Books);
+
+        // Verify the book is removed from the custom shelf file
+        var shelfFileContents = File.ReadAllText(testShelfFileName);
+        Assert.DoesNotContain("Test Book2:Test Author2:999:2234567890" + Environment.NewLine, shelfFileContents);
+    }
+
 }
