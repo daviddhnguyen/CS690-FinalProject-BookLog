@@ -17,28 +17,28 @@ public class ConsoleUI {
             new SelectionPrompt<string>()
                 .Title("Select a mode:")
                 .AddChoices(new[] {
-                    "shelf", "reading progress"
+                    "Book Shelf", "Reading Progress"
                     })
         );
 
-        if (mode == "shelf") {
+        if (mode == "Book Shelf") {
             // Logic to view the shelf
             Console.WriteLine("Displaying your shelf...");
 
             string bookCmd;
 
             do {
-                // shelf home
+                // shelf end
                 bookCmd = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Select a book command:")
                         .AddChoices(new[] {
-                            "add", "edit", "notes", "remove", "shelf", "home"
+                            "Add a Book", "Edit a book", "View notes for a book", "Remove a book", "See shelf", "End"
                         })
                 );
                 
-                if (bookCmd == "add") {
-                    string bookName = AskForInput("Enter the name of the book to add:");
+                if (bookCmd == "Add a book") {
+                    string bookName = AskForInput("Enter the name of the book:");
 
                     string authorName = AskForInput("Enter the author of the book (optional, press enter to skip):");
                     if (string.IsNullOrWhiteSpace(authorName)) {
@@ -50,29 +50,84 @@ public class ConsoleUI {
 
                     string isbnInput = AskForInput("Enter the ISBN of the book (optional, press enter to skip):");
                     string isbn = string.IsNullOrWhiteSpace(isbnInput) ? "Unknown" : isbnInput; // Default to "Unknown" if no ISBN is provided 
-                    // Logic to add the bookdetails to the shelf
+                    // Logic to add a book the bookdetails to the shelf
 
                     Book bookDetails = new Book(bookName, authorName, pageCount, isbn);
 
                     dataManager.AddNewBook(bookDetails);
 
                     Console.WriteLine($"'{bookName}' added to your shelf.");
-                } else if (bookCmd == "edit") {
-                    string bookName = AskForInput("Enter the name of the book to edit:");
-                    // Logic to edit the book in the shelf
+                } else if (bookCmd == "Edit a book") {
+                    string bookName = AskForInput("Enter the name of the book to edit a book:");
+                    // Logic to edit a book on the shelf
 
-                } else if (bookCmd == "notes") {
-                    string bookName = AskForInput("Enter the name of the book to view notes:");
-                    // Logic to view the notes
-                    Console.WriteLine($"Displaying notes for the book '{bookName}':");
-                    // Here you would typically fetch and display the notes for the book
+                } else if (bookCmd == "View notes for a book") {
+                    string bookName = AskForInput("Enter the name of the book to view its notes:");
+                    // Logic to view the view notes for a book
+                    Console.WriteLine($"Displaying view notes for a book for the book '{bookName}':");
+                    // Here you would typically fetch and display the view notes for a book for the book
 
-                } else if (bookCmd == "remove") {
-                    string bookName = AskForInput("Enter the name of the book to remove:");
-                    // Logic to remove the book from the shelf
+                } else if (bookCmd == "Remove a book") {
+                    string bookName = AskForInput("Enter the name of the book to remove a book:");
+                    // Logic to remove a book the book from the shelf
                     Console.WriteLine($"Book '{bookName}' removed from your shelf.");
 
-                } else if (bookCmd == "home") {
+                } else if (bookCmd == "End") {
+                    continue;
+
+                } else if (bookCmd == "See shelf") {
+                    // Logic to see the shelf
+                    Console.WriteLine("Displaying your shelf...");
+                    // Here you would typically fetch and display the list of books on the shelf
+
+                }else {
+                    Console.WriteLine("Invalid command.");
+                    continue;
+                }
+
+            } while (bookCmd != "End");
+        } 
+        else if (mode == "Reading Progress") {
+            // Logic to view the reading progress
+            string bookCmd;
+
+            do {
+                // Show the reading progress
+                AnsiConsole.Write(new BarChart()
+                        .Width(60)
+                        .Label("[green bold underline]Reading Progress[/]")
+                        .CenterLabel()
+                        .AddItem("Books Read", 2, Color.Green)
+                        .AddItem("Annual Reading Goal", dataManager.ReadingGoal, Color.Red)
+                        .AddItem("Books Left", dataManager.ReadingGoal - 2, Color.Blue));
+                
+                bookCmd = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Select a book command:")
+                        .AddChoices(new[] {
+                            "Update Annual Reading Goal", "End"
+                        })
+                );
+                
+                if (bookCmd == "Update Annual Reading Goal") {
+                    Console.WriteLine($"Your current annual reading goal is {dataManager.ReadingGoal}");
+                    string goalInput = AskForInput("Enter your new annual reading goal (optional, press enter to skip):");
+                    
+                    // If the user skips (blank input), use the existing reading goal
+                    if (string.IsNullOrWhiteSpace(goalInput)) {
+                        Console.WriteLine($"No changes made. Keeping the existing reading goal of {dataManager.ReadingGoal}.");
+                    }
+                    else if (int.TryParse(goalInput, out int parsedGoal) && parsedGoal > 0) {
+                        // If the input is valid and greater than 0, update the reading goal
+                        dataManager.SetReadingGoal(parsedGoal);
+                        Console.WriteLine($"Your new annual reading goal is {dataManager.ReadingGoal}");
+                    }
+                    else {
+                        // If the input is invalid, keep the existing reading goal
+                        Console.WriteLine($"Invalid input. Keeping the existing reading goal of {dataManager.ReadingGoal}.");
+                    }
+
+                } else if (bookCmd == "End") {
                     continue;
 
                 }else {
@@ -80,7 +135,7 @@ public class ConsoleUI {
                     continue;
                 }
 
-            } while (bookCmd != "home");
+            } while (bookCmd != "End");
         }
     }
 
