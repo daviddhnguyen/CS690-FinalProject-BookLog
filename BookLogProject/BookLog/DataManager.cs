@@ -14,7 +14,24 @@ public class DataManager
         goalFileSaver = new FileSaver(goalFileName);
 
         Books = new List<Book>();
+        
+        if(File.Exists(shelfFileName)) {
+            var shelfFileContents = File.ReadAllLines(shelfFileName);
+            foreach (var line in shelfFileContents)
+            {
+                var bookDetails = line.Split(':');
+                if (bookDetails.Length == 4)
+                {
+                    string title = bookDetails[0];
+                    string author = bookDetails[1];
+                    int pageCount = int.Parse(bookDetails[2]);
+                    string isbn = bookDetails[3];
 
+                    Book book = new Book(title, author, pageCount, isbn);
+                    Books.Add(book);
+                }
+            }
+        }
         // Load the reading goal from goal.txt
         if (File.Exists(goalFileName))
         {
@@ -38,6 +55,32 @@ public class DataManager
     public void AddNewBook(Book bookDetails) {
         this.Books.Add(bookDetails);
         this.shelfFileSaver.AppendData(bookDetails);
+    }
+
+    public void SynchronizeBooks() {
+        File.Delete(shelfFileSaver.fileName);
+
+        // Recreate the file, even if Books is empty
+        using (File.Create(shelfFileSaver.fileName)) { }
+        
+        foreach (var book in Books)
+        {
+            this.shelfFileSaver.AppendData(book);
+        }
+    }
+
+    public void RemoveBook(string bookTitle)
+    {
+        var bookToRemove = Books.FirstOrDefault(book => book.Title == bookTitle);
+        if (bookToRemove != null)
+        {
+            this.Books.Remove(bookToRemove);
+            SynchronizeBooks(); // Update the shelf file after removing the book
+        }
+        else
+        {
+            Console.WriteLine($"'{bookTitle}' not found on your shelf.");
+        }
     }
 
     // Method to set or update the reading goal

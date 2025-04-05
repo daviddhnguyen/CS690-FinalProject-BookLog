@@ -22,18 +22,19 @@ public class ConsoleUI {
         );
 
         if (mode == "Book Shelf") {
-            // Logic to view the shelf
-            Console.WriteLine("Displaying your shelf...");
 
             string bookCmd;
 
             do {
+                // Logic to view the book shelf
+                DisplayBooks(dataManager);
+
                 // shelf end
                 bookCmd = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Select a book command:")
                         .AddChoices(new[] {
-                            "Add a Book", "Edit a book", "View notes for a book", "Remove a book", "See shelf", "End"
+                            "Add a book", "Edit a book", "View notes for a book", "Remove a book", "End"
                         })
                 );
                 
@@ -68,17 +69,31 @@ public class ConsoleUI {
                     // Here you would typically fetch and display the view notes for a book for the book
 
                 } else if (bookCmd == "Remove a book") {
-                    string bookName = AskForInput("Enter the name of the book to remove a book:");
-                    // Logic to remove a book the book from the shelf
-                    Console.WriteLine($"Book '{bookName}' removed from your shelf.");
+                    if (dataManager.Books.Count == 0)
+                        {
+                            Console.WriteLine("No books available to remove.");
+                            return;
+                        }
+
+                        // Prompt the user to select a book title to remove
+                        string bookTitleToRemove = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("Select the book to remove:")
+                                .AddChoices(dataManager.Books.Select(book => book.Title))
+                        );
+
+                        try
+                        {
+                            dataManager.RemoveBook(bookTitleToRemove);
+                            Console.WriteLine($"Book '{bookTitleToRemove}' has been removed from your shelf.");
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
 
                 } else if (bookCmd == "End") {
                     continue;
-
-                } else if (bookCmd == "See shelf") {
-                    // Logic to see the shelf
-                    Console.WriteLine("Displaying your shelf...");
-                    // Here you would typically fetch and display the list of books on the shelf
 
                 }else {
                     Console.WriteLine("Invalid command.");
@@ -143,8 +158,20 @@ public class ConsoleUI {
     {
         return AnsiConsole.Prompt(new TextPrompt<string>(message).AllowEmpty()
         );
-        /* Console.Write(message);
-        string input = Console.ReadLine()?.Trim().ToLower() ?? string.Empty;
-        return input; */
+    }
+
+    public void DisplayBooks(DataManager dataManager) {
+        // Create table of all books on shelf
+            var table = new Table();
+            table.AddColumn("Title");
+            table.AddColumn("Author");
+            table.AddColumn("Page Count");
+            table.AddColumn("ISBN");
+
+            foreach(var book in dataManager.Books) {
+                table.AddRow(book.Title, book.Author, book.PageCount.ToString(), book.ISBN);
+            }
+
+            AnsiConsole.Write(table);
     }
 }
