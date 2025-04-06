@@ -2,83 +2,75 @@ namespace BookLog;
 
 public class DataManager
 {
-    FileSaver shelfFileSaver;
+FileSaver shelfFileSaver;
     FileSaver goalFileSaver;
-    public List<Book> Books { get; set; }
+    public List<LibraryEntry> LibraryEntries { get; set; } // Replace Books with LibraryEntries
     public int ReadingGoal { get; set; }
 
-
-    public DataManager(string goalFileName = "goal.txt", string shelfFileName = "shelf.txt"){
-
+    public DataManager(string goalFileName = "goal.txt", string shelfFileName = "shelf.txt") {
         shelfFileSaver = new FileSaver(shelfFileName);
         goalFileSaver = new FileSaver(goalFileName);
 
-        Books = new List<Book>();
-        
-        if(File.Exists(shelfFileName)) {
+        LibraryEntries = new List<LibraryEntry>();
+
+        if (File.Exists(shelfFileName)) {
             var shelfFileContents = File.ReadAllLines(shelfFileName);
-            foreach (var line in shelfFileContents)
-            {
-                var bookDetails = line.Split(':');
-                if (bookDetails.Length == 4)
-                {
-                    string title = bookDetails[0];
-                    string author = bookDetails[1];
-                    int pageCount = int.Parse(bookDetails[2]);
-                    string isbn = bookDetails[3];
+            foreach (var line in shelfFileContents) {
+                var entryDetails = line.Split(':');
+                if (entryDetails.Length == 9) {
+                    string title = entryDetails[0];
+                    string author = entryDetails[1];
+                    int pageCount = int.Parse(entryDetails[2]);
+                    string isbn = entryDetails[3];
+                    DateOnly dateAdded = DateOnly.Parse(entryDetails[4]);
+                    DateOnly? dateFinished = string.IsNullOrWhiteSpace(entryDetails[5]) || entryDetails[5] == "N/A" 
+                        ? null 
+                        : DateOnly.Parse(entryDetails[5]);
+
+                    bool read = bool.Parse(entryDetails[6]);
+                    bool owned = bool.Parse(entryDetails[7]);
+                    string note = entryDetails[8];
 
                     Book book = new Book(title, author, pageCount, isbn);
-                    Books.Add(book);
+                    LibraryEntry entry = new LibraryEntry(book, dateAdded, dateFinished, read, owned, note);
+                    LibraryEntries.Add(entry);
                 }
             }
         }
-        // Load the reading goal from goal.txt
-        if (File.Exists(goalFileName))
-        {
-            string goalContent = File.ReadAllText(goalFileName).Trim(); // Read and trim whitespace
-            if (string.IsNullOrWhiteSpace(goalContent) || !int.TryParse(goalContent, out int parsedGoal))
-            {
-                ReadingGoal = 0; // Default to 0 if the file is blank or invalid
-            }
-            else
-            {
+
+        if (File.Exists(goalFileName)) {
+            string goalContent = File.ReadAllText(goalFileName).Trim();
+            if (string.IsNullOrWhiteSpace(goalContent) || !int.TryParse(goalContent, out int parsedGoal)) {
+                ReadingGoal = 0;
+            } else {
                 ReadingGoal = parsedGoal;
             }
-        }
-        else
-        {
-            ReadingGoal = 0; // Default to 0 if the file does not exist
+        } else {
+            ReadingGoal = 0;
         }
     }
 
-    // Method to add a new book to the shelf
-    public void AddNewBook(Book bookDetails) {
-        this.Books.Add(bookDetails);
-        this.shelfFileSaver.AppendData(bookDetails);
+    public void AddLibraryEntry(LibraryEntry entry) {
+        LibraryEntries.Add(entry);
+        shelfFileSaver.AppendData(entry);
     }
 
-    public void SynchronizeBooks() {
+    public void SynchronizeLibraryEntries() {
         File.Delete(shelfFileSaver.fileName);
 
-        // Recreate the file, even if Books is empty
         using (File.Create(shelfFileSaver.fileName)) { }
-        
-        foreach (var book in Books)
-        {
-            this.shelfFileSaver.AppendData(book);
+
+        foreach (var entry in LibraryEntries) {
+            shelfFileSaver.AppendData(entry);
         }
     }
 
-    public void RemoveBook(string bookTitle)
-    {
-        var bookToRemove = Books.FirstOrDefault(book => book.Title == bookTitle);
-        if (bookToRemove != null)
-        {
-            this.Books.Remove(bookToRemove);
-            SynchronizeBooks(); // Update the shelf file after removing the book
-        }
-        else
-        {
+    public void RemoveLibraryEntry(string bookTitle) {
+        var entryToRemove = LibraryEntries.FirstOrDefault(entry => entry.Book.Title == bookTitle);
+        if (entryToRemove != null) {
+            LibraryEntries.Remove(entryToRemove);
+            SynchronizeLibraryEntries();
+        } else {
             Console.WriteLine($"'{bookTitle}' not found on your shelf.");
         }
     }

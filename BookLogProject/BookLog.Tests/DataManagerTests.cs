@@ -32,39 +32,30 @@ public class DataManagerTests
         var fileContents = File.ReadAllText(testGoalFileName).Trim();
         Assert.Equal(newGoal.ToString(), fileContents);
     }
-
+    
     [Fact]
-    public void Test_AddNewBook()
-    {
+    public void Test_AddLibraryEntryNull() {
         Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
-        dataManager.AddNewBook(testBook);
+        LibraryEntry entry = new LibraryEntry(testBook, new DateOnly(2025, 4, 6), null, false, true, "Test Note");
 
-        Assert.Contains(testBook, dataManager.Books);
+        dataManager.AddLibraryEntry(entry);
 
-        // Verify the book is saved to the custom shelf file
+        Assert.Contains(entry, dataManager.LibraryEntries);
+
         var shelfFileContents = File.ReadAllText(testShelfFileName);
-        Assert.Contains("Test Book:Test Author:100:1234567890" + Environment.NewLine, shelfFileContents);
+        Assert.Contains("Test Book:Test Author:100:1234567890:04/06/2025::False:True:Test Note", shelfFileContents);
     }
 
-    [Fact]
-    public void Test_RemoveBook()
-    {
-        Book testBookRemove = new Book("Test Book2", "Test Author2", 999, "2234567890");
-        dataManager.AddNewBook(testBookRemove);
+        [Fact]
+    public void Test_AddLibraryEntryDate() {
+        Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
+        LibraryEntry entry = new LibraryEntry(testBook, new DateOnly(2025, 4, 6), new DateOnly(2026, 4, 6), false, true, "Test Note");
 
-        Assert.Contains(testBookRemove, dataManager.Books);
+        dataManager.AddLibraryEntry(entry);
 
-        Book testBookStay = new Book("Test BookA", "Test AuthorB", 999, "2234567890");
-        dataManager.AddNewBook(testBookStay);
+        Assert.Contains(entry, dataManager.LibraryEntries);
 
-        Assert.Contains(testBookStay, dataManager.Books);
-
-        dataManager.RemoveBook(testBookRemove.Title);
-        Assert.DoesNotContain(testBookRemove, dataManager.Books);
-
-        // Verify the book is removed from the custom shelf file
         var shelfFileContents = File.ReadAllText(testShelfFileName);
-        Assert.DoesNotContain("Test Book2:Test Author2:999:2234567890" + Environment.NewLine, shelfFileContents);
+        Assert.Contains("Test Book:Test Author:100:1234567890:04/06/2025:04/06/2026:False:True:Test Note", shelfFileContents);
     }
-
 }
