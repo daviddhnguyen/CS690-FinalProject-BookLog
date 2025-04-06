@@ -103,4 +103,47 @@ public class DataManagerTests
 
         Assert.Equal(3, dataManager.GetBooksCount());
     }
+    [Fact]
+    public void Test_UpdateLibraryEntry_PartialUpdate() {
+        Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
+        LibraryEntry entry = new LibraryEntry(testBook, new DateOnly(2025, 4, 6), null, false, true, "Test Note");
+
+        dataManager.AddLibraryEntry(entry);
+
+        // Update only the title and read status
+        dataManager.UpdateLibraryEntry(entry, newTitle: "Updated Title", newRead: true);
+
+        // Verify that only the specified fields are updated
+        Assert.Equal("Updated Title", entry.Book.Title);
+        Assert.True(entry.Read);
+        Assert.Equal("Test Author", entry.Book.Author); // Unchanged
+        Assert.Equal(100, entry.Book.PageCount); // Unchanged
+        Assert.Equal("1234567890", entry.Book.ISBN); // Unchanged
+        Assert.Null(entry.DateFinished); // Unchanged
+        Assert.Equal("Test Note", entry.Note); // Unchanged
+    }
+
+    [Fact]
+    public void Test_UpdateLibraryEntry() {
+        Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
+        LibraryEntry entry = new LibraryEntry(testBook, new DateOnly(2025, 4, 6), null, false, true, "Test Note");
+
+        dataManager.AddLibraryEntry(entry);
+
+        // Verify the entry is added
+        var shelfFileContents = File.ReadAllText(testShelfFileName);
+        Assert.Contains("Test Book:Test Author:100:1234567890:04/06/2025::False:True:Test Note", shelfFileContents);
+
+        // Update the entry
+        dataManager.UpdateLibraryEntry(entry, newDateFinished: new DateOnly(2026, 4, 7), newRead: true);
+
+        // Verify the entry is updated in memory
+        Assert.Contains(entry, dataManager.LibraryEntries);
+        Assert.Equal(new DateOnly(2026, 4, 7), entry.DateFinished);
+        Assert.True(entry.Read);
+
+        // Verify the entry is updated in the file
+        shelfFileContents = File.ReadAllText(testShelfFileName);
+        Assert.Contains("Test Book:Test Author:100:1234567890:04/06/2025:04/07/2026:True:True:Test Note", shelfFileContents);
+    }
 }

@@ -29,14 +29,14 @@ public class ConsoleUI {
 
                 do {
                     // Logic to view the book shelf
-                    DisplayBooks(dataManager);
+                    DisplayBooks();
 
                     // shelf end
                     bookCmd = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("Select a book command:")
                             .AddChoices(new[] {
-                                "Add a book", /* "Edit a book", "View notes for a book", */ "Remove a book", "Home"
+                                "Add a book", "Edit a book", "Remove a book", "Home"
                             })
                     );
                     
@@ -67,16 +67,111 @@ public class ConsoleUI {
 
                         Console.WriteLine($"'{bookName}' added to your shelf.");
                     } else if (bookCmd == "Edit a book") {
-                        string bookName =
-                        AskForInput("Enter the name of the book to edit a book:");
-                        // Logic to edit a book on the shelf
+                        if (dataManager.LibraryEntries.Count == 0) {
+                            Console.WriteLine("No books available to edit.");
+                            return;
+                        }
 
-                    } else if (bookCmd == "View notes for a book") {
-                        string bookName =
-                        AskForInput("Enter the name of the book to view its notes:");
-                        // Logic to view the view notes for a book
-                        Console.WriteLine($"Displaying view notes for a book for the book '{bookName}':");
-                        // Here you would typically fetch and display the view notes for a book for the book
+                        // Prompt the user to select a book by title
+                        string bookTitleToEdit = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("Select the book to edit:")
+                                .AddChoices(dataManager.LibraryEntries.Select(entry => entry.Book.Title))
+                        );
+
+                        // Find the selected book entry
+                        var entryToEdit = dataManager.LibraryEntries.FirstOrDefault(entry => entry.Book.Title == bookTitleToEdit);
+                        if (entryToEdit == null) {
+                            Console.WriteLine($"Book '{bookTitleToEdit}' not found.");
+                            return;
+                        }
+
+                        string fieldToEdit;
+
+                        do {
+                            // Prompt the user to select which field to edit
+                            fieldToEdit = AnsiConsole.Prompt(
+                                new SelectionPrompt<string>()
+                                    .Title("Select the field to edit:")
+                                    .AddChoices(new[] {
+                                        "Title", "Author", "Page Count", "ISBN", "Read", "Owned", "Date Finished", "Note", "Back to Shelf"
+                                    })
+                            );
+
+                            // Handle editing based on the selected field
+                            switch (fieldToEdit) {
+                                case "Title":
+                                    string newTitle = AnsiConsole.Prompt(
+                                        new TextPrompt<string>($"Enter the new title:")
+                                            .DefaultValue(entryToEdit.Book.Title) // Prepopulate with current title
+                                    );
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newTitle: newTitle);
+                                    break;
+
+                                case "Author":
+                                    string newAuthor = AnsiConsole.Prompt(
+                                        new TextPrompt<string>($"Enter the new author:")
+                                            .DefaultValue(entryToEdit.Book.Author) // Prepopulate with current author
+                                            .AllowEmpty() // Allow clearing the field
+                                    );
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newAuthor: newAuthor);
+                                    break;
+
+                                case "Page Count":
+                                    string newPageCountInput = AnsiConsole.Prompt(
+                                        new TextPrompt<string>($"Enter the new page count:")
+                                            .DefaultValue(entryToEdit.Book.PageCount.ToString()) // Prepopulate with current page count
+                                            .AllowEmpty() // Allow clearing the field
+                                    );
+                                    int? newPageCount = string.IsNullOrWhiteSpace(newPageCountInput) ? null : int.Parse(newPageCountInput);
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newPageCount: newPageCount);
+                                    break;
+
+                                case "ISBN":
+                                    string newISBN = AnsiConsole.Prompt(
+                                        new TextPrompt<string>($"Enter the new ISBN:")
+                                            .DefaultValue(entryToEdit.Book.ISBN) // Prepopulate with current ISBN
+                                            .AllowEmpty() // Allow clearing the field
+                                    );
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newISBN: newISBN);
+                                    break;
+
+                                case "Read":
+                                    bool newRead = AnsiConsole.Confirm($"Is this book read? (current: {(entryToEdit.Read ? "Yes" : "No")})");
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newRead: newRead);
+                                    break;
+
+                                case "Owned":
+                                    bool newOwned = AnsiConsole.Confirm($"Do you own this book? (current: {(entryToEdit.Owned ? "Yes" : "No")})");
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newOwned: newOwned);
+                                    break;
+
+                                case "Date Finished":
+                                    string newDateFinishedInput = AnsiConsole.Prompt(
+                                        new TextPrompt<string>($"Enter the new date finished (yyyy-MM-dd):")
+                                            .DefaultValue(entryToEdit.DateFinished?.ToString("yyyy-MM-dd") ?? "") // Prepopulate with current date or empty
+                                            .AllowEmpty() // Allow clearing the field
+                                    );
+                                    DateOnly? newDateFinished = string.IsNullOrWhiteSpace(newDateFinishedInput) ? null : DateOnly.Parse(newDateFinishedInput);
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newDateFinished: newDateFinished);
+                                    break;
+
+                                case "Note":
+                                    string newNote = AnsiConsole.Prompt(
+                                        new TextPrompt<string>($"Enter the new note:")
+                                            .DefaultValue(entryToEdit.Note ?? "No Note") // Prepopulate with current note or "No Note"
+                                            .AllowEmpty() // Allow clearing the field
+                                    );
+                                    dataManager.UpdateLibraryEntry(entryToEdit, newNote: newNote);
+                                    break;
+
+                                default:
+                                    Console.WriteLine("Invalid field selected.");
+                                    break;
+                            }
+
+                            DisplayBooks(new List<LibraryEntry> { entryToEdit });
+                        } while (fieldToEdit != "Back to Shelf");
 
                     } else if (bookCmd == "Remove a book") {
                         if (dataManager.LibraryEntries.Count == 0) {
@@ -172,7 +267,7 @@ public class ConsoleUI {
         );
     }
 
-    public void DisplayBooks(DataManager dataManager) {
+    public void DisplayBooks(List<LibraryEntry>? entries = null) {
         var table = new Table();
         table.AddColumn("Title");
         table.AddColumn("Author");
@@ -184,8 +279,10 @@ public class ConsoleUI {
         table.AddColumn("Date Finished");
         table.AddColumn("Note");
 
+        // Use the provided list of entries or default to all books in the DataManager
+        var booksToDisplay = entries ?? dataManager.LibraryEntries;
 
-        foreach (var entry in dataManager.LibraryEntries) {
+        foreach (var entry in booksToDisplay) {
             var book = entry.Book;
             table.AddRow(
                 book.Title,

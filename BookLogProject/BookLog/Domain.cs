@@ -1,10 +1,10 @@
 namespace BookLog;
 
 public class Book {
-    public string Title { get; }
-    public string Author { get; }
-    public int PageCount { get; }
-    public string ISBN { get; }
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public int PageCount { get; set;}
+    public string ISBN { get; set; }
 
     public Book(string title, string author, int pageCount, string isbn) {
         this.Title = title;
@@ -22,12 +22,12 @@ public class Reader {
     }
 }
 public class LibraryEntry {
-    public Book Book { get; }
-    public DateOnly? DateAdded { get; }
-    public DateOnly? DateFinished { get; }
-    public bool Read { get; }
-    public bool Owned { get; }
-    public string? Note { get; }
+    public Book Book { get; set; }
+    public DateOnly? DateAdded { get; set; }
+    public DateOnly? DateFinished { get; set; }
+    public bool Read { get; set; }
+    public bool Owned { get; set;}
+    public string? Note { get; set;}
 
     public LibraryEntry(Book book, DateOnly? dateAdded, DateOnly? dateFinished, bool read, bool owned, string? note) {
         this.Book = book;

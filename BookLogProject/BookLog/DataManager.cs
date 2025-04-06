@@ -92,4 +92,43 @@ FileSaver shelfFileSaver;
     public int GetBooksOwnedCount() {
         return LibraryEntries.Count(entry => entry.Owned);
     }
+
+    public void UpdateLibraryEntry(
+        LibraryEntry entry,
+        string? newTitle = null,
+        string? newAuthor = null,
+        int? newPageCount = null,
+        string? newISBN = null,
+        bool? newRead = null,
+        bool? newOwned = null,
+        DateOnly? newDateFinished = null,
+        string? newNote = null
+    ) {
+        // Update the title (cannot be null)
+        if (newTitle != null) entry.Book.Title = newTitle;
+
+        // Update the author (only if explicitly provided)
+        if (newAuthor != null) entry.Book.Author = string.IsNullOrWhiteSpace(newAuthor) ? "Unknown" : newAuthor;
+
+        // Update the page count (only if explicitly provided)
+        if (newPageCount.HasValue) entry.Book.PageCount = newPageCount.Value;
+
+        // Update the ISBN (only if explicitly provided)
+        if (newISBN != null) entry.Book.ISBN = string.IsNullOrWhiteSpace(newISBN) ? "Unknown" : newISBN;
+
+        // Update the read status (only if explicitly provided)
+        if (newRead.HasValue) entry.Read = newRead.Value;
+
+        // Update the owned status (only if explicitly provided)
+        if (newOwned.HasValue) entry.Owned = newOwned.Value;
+
+        // Update the date finished (only if explicitly provided)
+        if (newDateFinished.HasValue || newDateFinished == null) entry.DateFinished = newDateFinished;
+
+        // Update the note (only if explicitly provided)
+        if (newNote != null) entry.Note = string.IsNullOrWhiteSpace(newNote) ? null : newNote;
+
+        // Synchronize changes to the file
+        SynchronizeLibraryEntries();
+    }
 }
