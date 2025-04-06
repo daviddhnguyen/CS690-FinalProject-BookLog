@@ -13,11 +13,14 @@ public class FileSaver {
         }
     }
 
-    public void AppendLine(string line) {
+    public void AppendData(LibraryEntry entry) {
+        var book = entry.Book;
+        string dateAdded =
+         entry.DateAdded?.ToString("yyyy-MM-dd") ?? "N/A";
+        string dateFinished =
+         entry.DateFinished?.ToString("yyyy-MM-dd") ?? "N/A";
+        string line =
+         $"{book.Title}:{book.Author}:{book.PageCount}:{book.ISBN}:{entry.DateAdded}:{entry.DateFinished}:{entry.Read}:{entry.Owned}:{entry.Note}";
         File.AppendAllText(this.fileName, line + Environment.NewLine);
-    }
-
-    public void AppendData(Book bookDetails) {
-        File.AppendAllText(this.fileName, bookDetails.Title  + ":" + bookDetails.Author  + ":" + bookDetails.PageCount  + ":" + bookDetails.ISBN + Environment.NewLine);
     }
 }

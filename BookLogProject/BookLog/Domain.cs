@@ -29,7 +29,7 @@ public class LibraryEntry {
     public bool Owned { get; }
     public string? Note { get; }
 
-    public LibraryEntry(Book book, DateOnly dateAdded, DateOnly dateFinished, bool read, bool owned, string note) {
+    public LibraryEntry(Book book, DateOnly? dateAdded, DateOnly? dateFinished, bool read, bool owned, string? note) {
         this.Book = book;
         this.DateAdded = dateAdded;
         this.DateFinished = dateFinished;

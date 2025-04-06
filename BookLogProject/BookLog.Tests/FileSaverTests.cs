@@ -15,22 +15,30 @@ public class FileSaverTests
     }
 
     [Fact]
-    public void Test_FileSaver_Append()
+    public void Test_FileSaver_AppendDataNull()
     {
-        string testString = "This is a test string.";
+        Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
+        LibraryEntry entry = new LibraryEntry(testBook, new DateOnly(2025, 4, 6), null, false, true, "Test Note");
         
-        fileSaver.AppendLine(testString);
+        fileSaver.AppendData(entry);
         var fileContents = File.ReadAllText(testFileName);
-        Assert.Contains(testString+Environment.NewLine, fileContents);
+
+        string expectedLine = "Test Book:Test Author:100:1234567890:04/06/2025::False:True:Test Note" + Environment.NewLine;
+
+        // Assert with a custom failure message
+        Assert.True(fileContents.Contains(expectedLine), 
+            $"Expected line not found in file contents.\nExpected: {expectedLine}\nActual: {fileContents}");
     }
 
     [Fact]
-    public void Test_FileSaver_AppendData()
+    public void Test_FileSaver_AppendDataDate()
     {
-        Book testBook = new Book("Test Book","Test Author",100,"1234567890");
+        Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
+        LibraryEntry entry = new LibraryEntry(testBook, new DateOnly(2025, 4, 6), new DateOnly(2025, 4, 6), false, true, "Test Note");
         
-        fileSaver.AppendData(testBook);
+        fileSaver.AppendData(entry);
         var fileContents = File.ReadAllText(testFileName);
-        Assert.Contains("Test Book:Test Author:100:1234567890" + Environment.NewLine, fileContents);
+        Assert.Contains("Test Book:Test Author:100:1234567890:04/06/2025:04/06/2025:False:True:Test Note" + Environment.NewLine, fileContents);
     }
+
 }
