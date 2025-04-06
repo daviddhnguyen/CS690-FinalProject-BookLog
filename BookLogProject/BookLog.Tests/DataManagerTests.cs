@@ -1,5 +1,6 @@
 namespace BookLog.Tests;
 
+using System.Dynamic;
 using BookLog;
 
 public class DataManagerTests
@@ -111,11 +112,11 @@ public class DataManagerTests
         dataManager.AddLibraryEntry(entry);
 
         // Update only the title and read status
-        dataManager.UpdateLibraryEntry(entry, newTitle: "Updated Title", newRead: true);
+        dataManager.UpdateLibraryEntry(entry, newTitle: "Updated Title");
 
         // Verify that only the specified fields are updated
         Assert.Equal("Updated Title", entry.Book.Title);
-        Assert.True(entry.Read);
+        Assert.False(entry.Read); // Unchanged
         Assert.Equal("Test Author", entry.Book.Author); // Unchanged
         Assert.Equal(100, entry.Book.PageCount); // Unchanged
         Assert.Equal("1234567890", entry.Book.ISBN); // Unchanged
@@ -145,5 +146,29 @@ public class DataManagerTests
         // Verify the entry is updated in the file
         shelfFileContents = File.ReadAllText(testShelfFileName);
         Assert.Contains("Test Book:Test Author:100:1234567890:04/06/2025:04/07/2026:True:True:Test Note", shelfFileContents);
+    }
+
+    [Fact]
+    public void Test_UpdateLibraryEntry_AutoUpdateDateFinished() {
+        Book testBook = new Book("Test Book", "Test Author", 100, "1234567890");
+        LibraryEntry entry = new LibraryEntry(testBook, new DateOnly(2025, 4, 6), new DateOnly(2025, 4, 6), false, true, "Test Note");
+
+        dataManager.AddLibraryEntry(entry);
+
+        // Capture today's date
+        DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+        // Mark the book as read
+        dataManager.UpdateLibraryEntry(entry, newRead: true);
+
+        // Verify that DateFinished is set to today's date'
+        Assert.True(entry.Read);
+        Assert.Equal(today, entry.DateFinished);
+
+        // Mark the book as unread
+        dataManager.UpdateLibraryEntry(entry, newRead: false);
+
+        // Verify that DateFinished is cleared
+        Assert.False(entry.Read);
+        Assert.Null(entry.DateFinished);
     }
 }

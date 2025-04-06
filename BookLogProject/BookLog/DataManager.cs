@@ -117,13 +117,23 @@ FileSaver shelfFileSaver;
         if (newISBN != null) entry.Book.ISBN = string.IsNullOrWhiteSpace(newISBN) ? "Unknown" : newISBN;
 
         // Update the read status (only if explicitly provided)
-        if (newRead.HasValue) entry.Read = newRead.Value;
+        if (newRead.HasValue) {
+            // If the book is marked as read and was previously unread, set DateFinished to today's date
+            if (newRead.Value == true && !entry.Read) {
+                entry.DateFinished = DateOnly.FromDateTime(DateTime.Now);
+            }
+            // If the book is marked as unread and was previously read, clear the DateFinished field
+            else if (newRead.Value == false && entry.Read) {
+                entry.DateFinished = null;
+            } 
+            entry.Read = newRead.Value;
+        }
 
         // Update the owned status (only if explicitly provided)
         if (newOwned.HasValue) entry.Owned = newOwned.Value;
 
         // Update the date finished (only if explicitly provided)
-        if (newDateFinished.HasValue || newDateFinished == null) entry.DateFinished = newDateFinished;
+        if (newDateFinished.HasValue) entry.DateFinished = newDateFinished;
 
         // Update the note (only if explicitly provided)
         if (newNote != null) entry.Note = string.IsNullOrWhiteSpace(newNote) ? null : newNote;
