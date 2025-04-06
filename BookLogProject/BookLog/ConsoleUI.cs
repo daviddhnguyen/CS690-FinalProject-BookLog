@@ -111,18 +111,25 @@ public class ConsoleUI {
                 string bookCmd;
 
                 do {
+
+                    int booksCount = dataManager.GetBooksCount();
+                    int booksRead = dataManager.GetBooksReadCount();
+                    int booksOwned = dataManager.GetBooksOwnedCount();
+
                     // Show the reading progress
                     AnsiConsole.Write(new BarChart()
                             .Width(60)
                             .Label("[green bold underline]Reading Progress[/]")
                             .CenterLabel()
-                            .AddItem("Books Read", 2, Color.Green)
+                            .AddItem("Books Read", booksRead, Color.Green)
                             .AddItem("Annual Reading Goal", dataManager.ReadingGoal, Color.Red)
-                            .AddItem("Books Left", dataManager.ReadingGoal - 2, Color.Blue));
+                            .AddItem("Books Left", Math.Max(dataManager.ReadingGoal - booksRead, 0), Color.Blue)
+                            .AddItem("Books Owned", booksOwned, Color.Yellow)
+                            .AddItem("Total Books", booksCount, Color.White));
                     
                     bookCmd = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
-                            .Title("Select a book command:")
+                            .Title("Select a command:")
                             .AddChoices(new[] {
                                 "Update Annual Reading Goal", "Home"
                             })
