@@ -269,6 +269,7 @@ public class ConsoleUI {
 
     public void DisplayBooks(List<LibraryEntry>? entries = null) {
         var table = new Table();
+        table.AddColumn("#");
         table.AddColumn("Title");
         table.AddColumn("Author");
         table.AddColumn("Page Count");
@@ -282,9 +283,12 @@ public class ConsoleUI {
         // Use the provided list of entries or default to all books in the DataManager
         var booksToDisplay = entries ?? dataManager.LibraryEntries;
 
+        int rowNumber = 1;
+
         foreach (var entry in booksToDisplay) {
             var book = entry.Book;
             table.AddRow(
+                rowNumber++.ToString(),
                 book.Title,
                 book.Author,
                 book.PageCount.ToString(),
