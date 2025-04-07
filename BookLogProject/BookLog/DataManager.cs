@@ -81,7 +81,7 @@ FileSaver shelfFileSaver;
         File.WriteAllText(goalFileSaver.fileName, this.ReadingGoal.ToString());
     }
 
-        public int GetBooksCount() {
+    public int GetBooksCount() {
         return LibraryEntries.Count;
     }
 
