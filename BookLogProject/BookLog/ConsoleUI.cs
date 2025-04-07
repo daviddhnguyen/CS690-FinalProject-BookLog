@@ -182,16 +182,19 @@ public class ConsoleUI {
                         string bookTitleToRemove = AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
                                 .Title("Select the book to remove:")
-                                .AddChoices(dataManager.LibraryEntries.Select(entry => entry.Book.Title))
+                                .AddChoices(dataManager.LibraryEntries.Select(entry => entry.Book.Title).Append("Cancel")) // Add "Cancel" option
                         );
 
-                        try {
-                            dataManager.RemoveLibraryEntry(bookTitleToRemove);
-                            Console.WriteLine($"Book '{bookTitleToRemove}' has been removed from your shelf.");
-                        } catch (ArgumentException ex) {
-                            Console.WriteLine(ex.Message);
+                        if (bookTitleToRemove != "Cancel") {
+                            try {
+                                dataManager.RemoveLibraryEntry(bookTitleToRemove);
+                                Console.WriteLine($"Book '{bookTitleToRemove}' has been removed from your shelf.");
+                            } catch (ArgumentException ex) {
+                                Console.WriteLine(ex.Message);
+                            }
+                        } else {
+                            Console.WriteLine("Removal canceled.");
                         }
-                    } else if (bookCmd == "End") {
                         continue;
 
                     }else {
