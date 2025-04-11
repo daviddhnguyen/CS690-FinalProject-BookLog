@@ -171,4 +171,32 @@ public class DataManagerTests
         Assert.False(entry.Read);
         Assert.Null(entry.DateFinished);
     }
+
+    [Fact]
+    public void Test_AddLargeNumberOfBooks_Performance()
+    {
+        // Arrange
+        int numberOfBooks = 1100;
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        for (int i = 0; i < numberOfBooks; i++)
+        {
+            Book testBook = new Book($"Test Book {i}", $"Test Author {i}", i + 100, $"{i:D10}");
+            LibraryEntry entry = new LibraryEntry(testBook, DateOnly.FromDateTime(DateTime.Now), null, false, true, $"Test Note {i}");
+
+            // Act
+            dataManager.AddLibraryEntry(entry);
+        }
+
+        stopwatch.Stop();
+
+        Assert.Equal(numberOfBooks, dataManager.LibraryEntries.Count);
+
+        // Verify that all books are written to the file
+        var shelfFileContents = File.ReadAllLines(testShelfFileName);
+        Assert.Equal(numberOfBooks, shelfFileContents.Length);
+
+        // Output the time taken (if failed, this will be printed)
+        Console.WriteLine($"Time taken to add {numberOfBooks} books: {stopwatch.ElapsedMilliseconds} ms");
+    }
 }
