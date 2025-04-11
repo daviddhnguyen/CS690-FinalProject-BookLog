@@ -14,6 +14,9 @@ public class Book {
     }
 }
 
+// Reader class only needed if we want to keep track of multiple readers in this app.
+// Currently the app is designed for a single reader.
+/*
 public class Reader {
     public int ReadingGoal { get; }
 
@@ -21,6 +24,7 @@ public class Reader {
         this.ReadingGoal = readingGoal;
     }
 }
+*/
 public class LibraryEntry {
     public Book Book { get; set; }
     public DateOnly? DateAdded { get; set; }
